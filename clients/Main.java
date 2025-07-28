@@ -6,6 +6,9 @@ import clients.backDoor.BackDoorView;
 import clients.cashier.CashierController;
 import clients.cashier.CashierModel;
 import clients.cashier.CashierView;
+import clients.catalogue.CatalogueController;
+import clients.catalogue.CatalogueModel;
+import clients.catalogue.CatalogueView;
 import clients.customer.CustomerController;
 import clients.customer.CustomerModel;
 import clients.customer.CustomerView;
@@ -45,6 +48,7 @@ class Main
     startCashierGUI_MVC( mlf ); // you can create multiple clients
     startPackingGUI_MVC( mlf );
     startBackDoorGUI_MVC( mlf );
+    startCatalogueGUI( mlf);
   }
   
   /**
@@ -129,6 +133,22 @@ class Main
 
     model.addObserver( view );       // Add observer to the model
     window.setVisible(true);         // Make window visible
+  }
+
+  public void startCatalogueGUI(MiddleFactory mlf){
+    JFrame  window = new JFrame();
+
+    window.setTitle( "Catalogue");
+    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+    Dimension pos = PosOnScrn.getPos();
+
+    CatalogueModel model = new CatalogueModel(mlf);
+    CatalogueView view = new CatalogueView(window, "CASHIER");
+    CatalogueController cont  = new CatalogueController( model, view );
+    view.setController( cont );
+
+    model.addObserver( view );
+    window.setVisible(true);
   }
   
 }

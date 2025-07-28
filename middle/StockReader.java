@@ -39,4 +39,5 @@ public interface StockReader
    */
   
   ImageIcon getImage(String pNum) throws StockException;
+
 }
