@@ -1,6 +1,8 @@
 package clients.cashier;
 
 import catalogue.Basket;
+import clients.catalogue.CatalogueClient;
+import clients.utils.CatalogueSelection;
 import middle.MiddleFactory;
 import middle.OrderProcessing;
 import middle.StockReadWriter;
@@ -16,6 +18,9 @@ import java.util.Observer;
  */
 public class CashierView implements Observer
 {
+  private CatalogueClient CatalogueC;
+  private CatalogueSelection CatalogueSel;
+
   private static final int H = 300;       // Height of window pixels
   private static final int W = 400;       // Width  of window pixels
   
@@ -29,6 +34,7 @@ public class CashierView implements Observer
   private final JTextArea   theOutput  = new JTextArea();
   private final JScrollPane theSP      = new JScrollPane();
   private final JButton     theBtCheck = new JButton( CHECK );
+  private final JButton theBtCatalogue = new JButton("Catalogue");
   private final JButton     theBtBuy   = new JButton( BUY );
   private final JButton     theBtBought= new JButton( BOUGHT );
 
@@ -65,11 +71,36 @@ public class CashierView implements Observer
     pageTitle.setBounds( 110, 0 , 270, 20 );       
     pageTitle.setText( "Thank You for Shopping at MiniStrore" );                        
     cp.add( pageTitle );  
-    
-    theBtCheck.setBounds( 16, 25+60*0, 80, 40 );    // Check Button
-    theBtCheck.addActionListener(                   // Call back code
-      e -> cont.doCheck( theInput.getText() ) );
-    cp.add( theBtCheck );                           //  Add to canvas
+
+
+    theBtCatalogue.setBounds( 16, 25+60*0, 80, 40 );
+    theBtCatalogue.addActionListener(
+            e -> {
+              clients.utils.CatalogueSelection.clearSelectedProductNum();
+
+              SwingUtilities.invokeLater(() -> {
+                CatalogueC = new CatalogueClient();
+                CatalogueC.displayGUI(mf,"CASHIER");
+              });
+
+              // Timer to check a product being selected every 500ms
+              Timer timer = new Timer(500, evt -> {
+                String selected = CatalogueSel.getSelectedProductNum();
+                if (selected != null) {
+                  CatalogueSel.clearSelectedProductNum();
+                  theInput.setText(selected);
+                  cont.doCheck(selected);
+                  ((Timer)evt.getSource()).stop();
+                }
+              });
+              timer.start();
+            });
+    cp.add(theBtCatalogue);
+
+//    theBtCheck.setBounds( 16, 25+60*0, 80, 40 );    // Check Button
+//    theBtCheck.addActionListener(                   // Call back code
+//      e -> cont.doCheck( theInput.getText() ) );
+//    cp.add( theBtCheck );                           //  Add to canvas
 
     theBtBuy.setBounds( 16, 25+60*1, 80, 40 );      // Buy button 
     theBtBuy.addActionListener(                     // Call back code

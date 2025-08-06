@@ -3,6 +3,8 @@ package clients.customer;
 import catalogue.Basket;
 import catalogue.BetterBasket;
 import clients.Picture;
+import clients.catalogue.CatalogueClient;
+import clients.utils.CatalogueSelection;
 import middle.MiddleFactory;
 import middle.StockReader;
 
@@ -17,6 +19,9 @@ import java.util.Observer;
 
 public class CustomerView implements Observer
 {
+  private CatalogueClient CatalogueC;
+  private CatalogueSelection CatalogueSel;
+
   class Name                              // Names of buttons
   {
     public static final String CHECK  = "Check";
@@ -31,7 +36,8 @@ public class CustomerView implements Observer
   private final JTextField  theInput   = new JTextField();
   private final JTextArea   theOutput  = new JTextArea();
   private final JScrollPane theSP      = new JScrollPane();
-  private final JButton     theBtCheck = new JButton( Name.CHECK );
+//  private final JButton     theBtCheck = new JButton( Name.CHECK );
+  private final JButton theBtCatalogue = new JButton( "Catalogue" );
   private final JButton     theBtClear = new JButton( Name.CLEAR );
 
   private Picture thePicture = new Picture(80,80);
@@ -67,10 +73,34 @@ public class CustomerView implements Observer
     pageTitle.setText( "Search products" );                        
     cp.add( pageTitle );
 
-    theBtCheck.setBounds( 16, 25+60*0, 80, 40 );    // Check button
-    theBtCheck.addActionListener(                   // Call back code
-      e -> cont.doCheck( theInput.getText() ) );
-    cp.add( theBtCheck );                           //  Add to canvas
+    theBtCatalogue.setBounds( 16, 25+60*0, 80, 40 );
+    theBtCatalogue.addActionListener(
+            e -> {
+              clients.utils.CatalogueSelection.clearSelectedProductNum();
+
+              SwingUtilities.invokeLater(() -> {
+                CatalogueC = new CatalogueClient();
+                CatalogueC.displayGUI(mf,"CUSTOMER");
+              });
+
+              // Timer to check a product being selected every 500ms
+              Timer timer = new Timer(500, evt -> {
+                String selected = CatalogueSel.getSelectedProductNum();
+                if (selected != null) {
+                  CatalogueSel.clearSelectedProductNum();
+                  theInput.setText(selected);
+                  cont.doCheck(selected);
+                  ((Timer)evt.getSource()).stop();
+                }
+              });
+              timer.start();
+            });
+    cp.add(theBtCatalogue);
+
+//    theBtCheck.setBounds( 16, 25+60*0, 80, 40 );    // Check button
+//    theBtCheck.addActionListener(                   // Call back code
+//      e -> cont.doCheck( theInput.getText() ) );
+//    cp.add( theBtCheck );                           //  Add to canvas
 
     theBtClear.setBounds( 16, 25+60*1, 80, 40 );    // Clear button
     theBtClear.addActionListener(                   // Call back code
