@@ -6,6 +6,7 @@ import clients.backDoor.BackDoorView;
 import clients.cashier.CashierController;
 import clients.cashier.CashierModel;
 import clients.cashier.CashierView;
+import clients.catalogue.CatalogueClient;
 import clients.catalogue.CatalogueController;
 import clients.catalogue.CatalogueModel;
 import clients.catalogue.CatalogueView;
@@ -15,10 +16,13 @@ import clients.customer.CustomerView;
 import clients.packing.PackingController;
 import clients.packing.PackingModel;
 import clients.packing.PackingView;
+import debug.DEBUG;
 import middle.LocalMiddleFactory;
 import middle.MiddleFactory;
 import javax.swing.*;
 import java.awt.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Starts all the clients (user interface)  as a single application.
@@ -35,20 +39,21 @@ class Main
   {
     new Main().begin();
   }
+  private static final Logger logger = LogManager.getLogger(Main.class);
 
   /**
    * Starts the system (Non distributed)
    */
   public void begin()
   {
-    //DEBUG.set(true); /* Lots of debug info */
+    DEBUG.set(false); /* Lots of debug info */
     MiddleFactory mlf = new LocalMiddleFactory();  // Direct access
     startCustomerGUI_MVC( mlf );
     startCashierGUI_MVC( mlf );
     startCashierGUI_MVC( mlf ); // you can create multiple clients
     startPackingGUI_MVC( mlf );
     startBackDoorGUI_MVC( mlf );
-    startCatalogueGUI( mlf);
+//    CatalogueClient.displayGUI(mlf, "CASHIER");
   }
   
   /**
@@ -59,7 +64,7 @@ class Main
   {
     JFrame  window = new JFrame();
     window.setTitle( "Customer Client MVC");
-    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     Dimension pos = PosOnScrn.getPos();
     
     CustomerModel model      = new CustomerModel(mlf);
@@ -79,7 +84,7 @@ class Main
   {
     JFrame  window = new JFrame();
     window.setTitle( "Cashier Client MVC");
-    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+    window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     Dimension pos = PosOnScrn.getPos();
     
     CashierModel model      = new CashierModel(mlf);
@@ -102,7 +107,7 @@ class Main
     JFrame  window = new JFrame();
 
     window.setTitle( "Packing Client MVC");
-    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+    window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     Dimension pos = PosOnScrn.getPos();
     
     PackingModel model      = new PackingModel(mlf);
@@ -123,32 +128,16 @@ class Main
     JFrame  window = new JFrame();
 
     window.setTitle( "BackDoor Client MVC");
-    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+    window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     Dimension pos = PosOnScrn.getPos();
     
     BackDoorModel model      = new BackDoorModel(mlf);
-    BackDoorView view        = new BackDoorView( window, mlf, pos.width, pos.height );
+    BackDoorView view        = new BackDoorView( window, mlf, pos.width, pos.height);
     BackDoorController cont  = new BackDoorController( model, view );
     view.setController( cont );
 
     model.addObserver( view );       // Add observer to the model
     window.setVisible(true);         // Make window visible
-  }
-
-  public void startCatalogueGUI(MiddleFactory mlf){
-    JFrame  window = new JFrame();
-
-    window.setTitle( "Catalogue");
-    window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-    Dimension pos = PosOnScrn.getPos();
-
-    CatalogueModel model = new CatalogueModel(mlf);
-    CatalogueView view = new CatalogueView(window, "CASHIER");
-    CatalogueController cont  = new CatalogueController( model, view );
-    view.setController( cont );
-
-    model.addObserver( view );
-    window.setVisible(true);
   }
   
 }

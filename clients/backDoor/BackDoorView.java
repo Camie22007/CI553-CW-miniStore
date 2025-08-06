@@ -1,5 +1,7 @@
 package clients.backDoor;
 
+import clients.catalogue.CatalogueClient;
+import clients.utils.CatalogueSelection;
 import middle.MiddleFactory;
 import middle.StockReadWriter;
 
@@ -14,6 +16,9 @@ import java.util.Observer;
 
 public class BackDoorView implements Observer
 {
+  private CatalogueClient CatalogueC;
+  private CatalogueSelection CatalogueSel;
+
   private static final String RESTOCK  = "Add";
   private static final String CLEAR    = "Clear";
   private static final String QUERY    = "Query";
@@ -29,7 +34,8 @@ public class BackDoorView implements Observer
   private final JScrollPane theSP      = new JScrollPane();
   private final JButton     theBtClear = new JButton( CLEAR );
   private final JButton     theBtRStock = new JButton( RESTOCK );
-  private final JButton     theBtQuery = new JButton( QUERY );
+//  private final JButton     theBtQuery = new JButton( QUERY );
+  private final JButton theBtCatalogue = new JButton("Catalogue");
   
   private StockReadWriter theStock     = null;
   private BackDoorController cont= null;
@@ -61,11 +67,35 @@ public class BackDoorView implements Observer
     pageTitle.setBounds( 110, 0 , 270, 20 );       
     pageTitle.setText( "Staff check and manage stock" );                        
     cp.add( pageTitle );
+
+    theBtCatalogue.setBounds( 16, 25+60*0, 80, 40 );
+    theBtCatalogue.addActionListener(
+            e -> {
+              clients.utils.CatalogueSelection.clearSelectedProductNum();
+
+              SwingUtilities.invokeLater(() -> {
+                CatalogueC = new CatalogueClient();
+                CatalogueC.displayGUI(mf,"BACKDOOR");
+              });
+
+              // Timer to check a product being selected every 500ms
+              Timer timer = new Timer(500, evt -> {
+                String selected = CatalogueSel.getSelectedProductNum();
+                if (selected != null) {
+                  CatalogueSel.clearSelectedProductNum();
+                  theInput.setText(selected);
+                  cont.doQuery(selected);
+                  ((Timer)evt.getSource()).stop();
+                }
+              });
+            timer.start();
+            });
+    cp.add(theBtCatalogue);
     
-    theBtQuery.setBounds( 16, 25+60*0, 80, 40 );    // Buy button 
-    theBtQuery.addActionListener(                   // Call back code
-      e -> cont.doQuery( theInput.getText() ) );
-    cp.add( theBtQuery );                           //  Add to canvas
+//    theBtQuery.setBounds( 16, 25+60*0, 80, 40 );    // Buy button
+//    theBtQuery.addActionListener(                   // Call back code
+//      e -> cont.doQuery( theInput.getText() ) );
+//    cp.add( theBtQuery );                           //  Add to canvas
 
     theBtRStock.setBounds( 16, 25+60*1, 80, 40 );   // Check Button
     theBtRStock.addActionListener(                  // Call back code
